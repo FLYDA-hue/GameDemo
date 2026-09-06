@@ -93,11 +93,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rewards:
-  - resourceID: 1002
-    amount: 1
-  - resourceID: 1003
-    amount: 1
-  manager: {fileID: 0}
+  - resourceID: 1001
+    amount: 10
+  - resourceID: 1004
+    amount: 10
+  resourceSystem: {fileID: 0}
   openChestClip: {fileID: 8300000, guid: 1ce9156deb674fa4089235ca2f7dff66, type: 3}
 --- !u!82 &7493224053616116967
 AudioSource:
