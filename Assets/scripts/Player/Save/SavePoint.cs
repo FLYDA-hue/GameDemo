@@ -22,7 +22,7 @@ public class SavePoint : MonoBehaviour
     }
     private void Update()
     {
-        if(playerInside&&Input.GetKeyDown(KeyCode.E))
+        if(playerInside&&Input.GetKeyDown(KeyCode.X))
         {
             Save();
         }
