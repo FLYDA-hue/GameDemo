@@ -15,18 +15,15 @@ public class SaveManager : MonoBehaviour
     {
         LoadGame();
     }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Q) && !_isSaving)
-        {
-            SaveGame();
-        }
-    }
-
     //保存游戏
     public void SaveGame()
     {
+        //防止保存过程中重复请求
+        if (_isSaving)
+        {
+            Debug.Log("正在保存，请稍候");
+            return;
+        }
         _isSaving = true;
 
         PlayerSaveData data = new PlayerSaveData();
