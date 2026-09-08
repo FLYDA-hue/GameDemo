@@ -162,4 +162,14 @@ public class ResourceManager
     {
         resources.Clear();
     }
+    //获取资源名称
+    public string GetResourceName(int id)
+    {
+        ResourceConfig config = database.GetResource(id);
+        if (config != null)
+        {
+            return config.itemName;
+        }
+        return "未知资源";
+    }
 }
