@@ -63,7 +63,10 @@ public class TreasureChest : MonoBehaviour
                         if (successCount == requestCount)
                         {
                             Debug.Log("宝箱全部奖励确认成功");
-                            Destroy(gameObject, openChestClip != null ? openChestClip.length : 0.1f);
+                            //所有奖励都成功后，一次性显示全部奖励
+                            ResourceGetTip.Instance?.Show( rewards,manager);
+                            Destroy( gameObject,openChestClip != null ? openChestClip.length : 0.1f
+                            );
                         }
                     }
                 }

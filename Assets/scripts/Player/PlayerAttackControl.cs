@@ -1,18 +1,18 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 
 public class PlayerAttackControl : AttackControl 
 {
-    [Header("½üÕ½¹¥»÷")]
+    [Header("è¿‘æˆ˜æ”»å‡»")]
     public float meleeAttackDamage;
-    public Vector2 attackSize = new Vector2(1f, 1f);//¹¥»÷·¶Î§
+    public Vector2 attackSize = new Vector2(1f, 1f);//æ”»å‡»èŒƒå›´
     private Vector2 AttackAreaPos;
     public float offsetX = 1f;
     public float offsetY = 1f;
 
-    //Ôö¼Ó¹¥»÷Á¦»ù´¡
+    //å¢åŠ æ”»å‡»åŠ›åŸºç¡€
     private float baseAttackDamage;
     private Coroutine attackCoroutine;
 
@@ -21,33 +21,34 @@ public class PlayerAttackControl : AttackControl
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        baseAttackDamage = meleeAttackDamage;
     }
     public void MeleeAttackAnimEvent(float isAttack)
    {
-        Debug.Log($"¹¥»÷¿ªÊ¼Ê± spriteRenderer = {spriteRenderer}");
+        Debug.Log($"æ”»å‡»å¼€å§‹æ—¶ spriteRenderer = {spriteRenderer}");
         AttackAreaPos = transform.position;
-        offsetX = spriteRenderer.flipX ? -Mathf.Abs(offsetX) : Mathf.Abs(offsetX);//ÊÇ·ñ·­×ª
+        offsetX = spriteRenderer.flipX ? -Mathf.Abs(offsetX) : Mathf.Abs(offsetX);//æ˜¯å¦ç¿»è½¬
         AttackAreaPos.x += offsetX;
         AttackAreaPos.y += offsetY;
-        //¼ì²âÒ»¸ö¾ØĞÎÇøÓòÄÚ£¬ÓĞÃ»ÓĞÅö×²Ìå£¬Ö»·µ»ØµÚÒ»¸öÅöµ½µÄÎïÌå
-        Collider2D[] hitColliders = Physics2D.OverlapBoxAll(AttackAreaPos ,attackSize ,0f,Enemy);//ÖĞĞÄµã£¬°ë¾¶£¬Ğı×ª
+        //æ£€æµ‹ä¸€ä¸ªçŸ©å½¢åŒºåŸŸå†…ï¼Œæœ‰æ²¡æœ‰ç¢°æ’ä½“ï¼Œåªè¿”å›ç¬¬ä¸€ä¸ªç¢°åˆ°çš„ç‰©ä½“
+        Collider2D[] hitColliders = Physics2D.OverlapBoxAll(AttackAreaPos ,attackSize ,0f,Enemy);//ä¸­å¿ƒç‚¹ï¼ŒåŠå¾„ï¼Œæ—‹è½¬
     
         foreach (Collider2D hitCollider in hitColliders)
         {
             if (hitCollider == null) continue;
 
-            // ´ÓÅö×²ÌåÍùÉÏ¸¸ÎïÌåËÑË÷ EnemyBase
+            // ä»ç¢°æ’ä½“å¾€ä¸Šçˆ¶ç‰©ä½“æœç´¢ EnemyBase
             EnemyBase enemy = hitCollider.GetComponentInParent<EnemyBase>();
 
             if (enemy != null)
             {
                 enemy.GetHit(meleeAttackDamage * isAttack);
-                Debug.Log("µĞÈËÊÜÉË");
+                Debug.Log("æ•Œäººå—ä¼¤");
             }
         }
     }
 
-    //Ôö¼Ó¹¥»÷Á¦
+    //å¢åŠ æ”»å‡»åŠ›
     public void IncreaseAttackDamage(float amount, float duration)
     {
         if (attackCoroutine != null)
@@ -60,14 +61,14 @@ public class PlayerAttackControl : AttackControl
     private IEnumerator AttackBuffCoroutine(float amount, float duration)
     {
         meleeAttackDamage = baseAttackDamage + amount;
-        Debug.Log("¹¥»÷Á¦Ôö¼Ó£º" + amount + " µ±Ç°¹¥»÷Á¦£º" + meleeAttackDamage);
+        Debug.Log("æ”»å‡»åŠ›å¢åŠ ï¼š" + amount + " å½“å‰æ”»å‡»åŠ›ï¼š" + meleeAttackDamage);
         yield return new WaitForSeconds(duration);
         meleeAttackDamage = baseAttackDamage;
-        Debug.Log("¹¥»÷Á¦Buff½áÊø£¬»Ö¸´»ù´¡¹¥»÷Á¦£º" + baseAttackDamage);
+        Debug.Log("æ”»å‡»åŠ›Buffç»“æŸï¼Œæ¢å¤åŸºç¡€æ”»å‡»åŠ›ï¼š" + baseAttackDamage);
         attackCoroutine = null;
     }
 
-    //»æÍ¼ÓÃÓÚ²âÊÔ
+    //ç»˜å›¾ç”¨äºæµ‹è¯•
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.blue  ;
