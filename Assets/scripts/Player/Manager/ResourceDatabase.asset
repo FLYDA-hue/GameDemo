@@ -35,5 +35,5 @@ MonoBehaviour:
     itemName: "\u653B\u51FB\u8349\u836F"
     maxCount: 3
     effectType: 2
-    effectValue: 10
+    effectValue: 20
     effectDuration: 10

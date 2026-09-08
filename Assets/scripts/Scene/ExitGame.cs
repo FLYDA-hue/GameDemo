@@ -15,7 +15,7 @@ public class ExitGame : MonoBehaviour
 #else
         //打包exe之后：真正关闭游戏窗口
         Application.Quit();
-        esourceSystem.Manager.ClearResources();
+        resourceSystem.Manager.ClearResources();
 #endif
     }
 }
