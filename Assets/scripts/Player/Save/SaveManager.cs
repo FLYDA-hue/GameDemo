@@ -4,6 +4,7 @@ public class SaveManager : MonoBehaviour
 {
     public ResourceSystemHost resourceSystem;
     public Transform player;
+    public WorldStateManager worldStateManager;
     private bool _isSaving = false;
 
     private void Start()
@@ -27,9 +28,11 @@ public class SaveManager : MonoBehaviour
         data.playerPosition = new PlayerPosition();
         data.playerPosition.x = player.position.x;
         data.playerPosition.y = player.position.y;
-
+        //世界状态
+        data.openedChestIds=worldStateManager.GetOpenedChestIds();
+        data.defeatedEnemyIds=worldStateManager.GetDefeatedEnemyIds();
         Debug.Log(
-            "准备保存游戏，资源数量：" + data.resources.Count + ",玩家位置：(" + data.playerPosition.x + "," + data.playerPosition.y + ")");
+            "准备保存游戏，资源数量：" + data.resources.Count + ",玩家位置：(" + data.playerPosition.x + "," + data.playerPosition.y + ")" +"，已打开宝箱：" +data.openedChestIds.Count +"，已击败敌人：" +data.defeatedEnemyIds.Count);
         SaveNetwork saveNetwork = new SaveNetwork(resourceSystem.apiSettings);
         StartCoroutine(SaveCoroutineWrap(saveNetwork, data));
     }
@@ -68,5 +71,10 @@ public class SaveManager : MonoBehaviour
         "存档加载成功，资源数量：" + data.resources.Count + "，玩家位置：(" + data.playerPosition.x + ", " + data.playerPosition.y + ")");
         player.position = new Vector3(data.playerPosition.x, data.playerPosition.y, player.position.z);
         Debug.Log("玩家位置恢复完成：（" + player.position.x + "," + player.position.y + ")");
+        //恢复世界状态
+        if(worldStateManager!=null)
+        {
+            worldStateManager.LoadWorldState(data.openedChestIds, data.defeatedEnemyIds);
+        }
     }
 }

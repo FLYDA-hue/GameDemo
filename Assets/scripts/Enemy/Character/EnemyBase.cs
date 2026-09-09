@@ -1,5 +1,5 @@
-using UnityEngine;
-
+﻿using UnityEngine;
+using System.Collections;
 public enum EnemyState
 {
     Idle,//待机
@@ -46,8 +46,24 @@ public class EnemyBase : MonoBehaviour
 
     [Header("Enemy 追击")]
     public GameObject player;
-    public virtual void Start()
+    //public virtual void Start()
+    //{
+    //    ChangeState(EnemyState.Patrol);
+    //}
+    private IEnumerator Start()
     {
+        if (worldStateManager != null)
+        {
+            //等待服务器存档加载完成
+            yield return new WaitUntil(() => worldStateManager.IsInitialized);
+            //检查这个敌人是否已经被击败
+            if (worldStateManager.IsEnemyDefeated(enemyId))
+            {
+                Debug.Log("敌人已经被击败，不再生成：" + enemyId);
+                Destroy(EnemyAndPosition);
+                yield break;
+            }
+        }
         ChangeState(EnemyState.Patrol);
     }
 
@@ -58,6 +74,15 @@ public class EnemyBase : MonoBehaviour
 
     [Header("Enemy 死亡")]
     public GameObject EnemyAndPosition;
+
+
+
+    //存档
+    [Header("Enemy 存档")]
+    public string enemyId;
+    public WorldStateManager worldStateManager;
+
+
 
     // Update is called once per frame
     public virtual void Update()
@@ -409,8 +434,17 @@ public class EnemyBase : MonoBehaviour
         ChangeState(EnemyState.Chase);
     }
 
-    public virtual void Delete()
+    /*public virtual void Delete()
     {
       Destroy(EnemyAndPosition,0.1f);
+    }*/
+
+    public virtual void Delete()
+    {
+        if (worldStateManager != null)
+        {
+            worldStateManager.RegisterDefeatedEnemy(enemyId);
+        }
+        Destroy(EnemyAndPosition, 0.1f);
     }
 }
