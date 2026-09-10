@@ -66,6 +66,7 @@ public class EnemyBase : MonoBehaviour
             }
         }
         ChangeState(EnemyState.Patrol);
+        //hpSlider.value = HPNow / HPMax;
     }
 
     [Header("Enemy 受击")]
@@ -87,12 +88,6 @@ public class EnemyBase : MonoBehaviour
     public WorldStateManager worldStateManager;
 
 
-
-    public virtual void Start()
-    {
-        ChangeState(EnemyState.Patrol);
-        //hpSlider.value = HPNow / HPMax;
-    }
     // Update is called once per frame
     public virtual void Update()
     {
