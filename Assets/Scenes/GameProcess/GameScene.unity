@@ -624,7 +624,7 @@ MonoBehaviour:
   canMove: 1
   chaseSpeed: 1.75
   patrolSpeed: 1
-  player: {fileID: 0}
+  player: {fileID: 283144552}
   isGetHit: 0
   GetHitForce: 5
   EnemyAndPosition: {fileID: 1131088819}
@@ -1099,7 +1099,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 3
-  jumpForce: 5
+  jumpForce: 9
+  gravityUp: 2.2
+  gravityDown: 3.2
+  coyoteTime: 0.15
+  jumpBuffer: 0.15
+  jumpCutMultiplier: 0.4
   groundCheckPoint: {fileID: 118959872}
   groundCheckRadius: 0.2
   groundLayer:
@@ -29361,7 +29366,7 @@ MonoBehaviour:
   canMove: 1
   chaseSpeed: 1.75
   patrolSpeed: 1
-  player: {fileID: 0}
+  player: {fileID: 283144552}
   isGetHit: 0
   GetHitForce: 5
   EnemyAndPosition: {fileID: 1304593505}
