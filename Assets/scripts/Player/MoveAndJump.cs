@@ -1,37 +1,50 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.U2D;
-
 public class MoveAndJump : MonoBehaviour
 {
-    [Header("ÒÆ¶¯ÉèÖÃ")]
-    public float moveSpeed = 5f;         
-    public float jumpForce = 7f;
-
-    //Ôö¼ÓÒ»¸ö»ù´¡ËÙ¶È
+    [Header("ç§»åŠ¨è®¾ç½®")]
+    public float moveSpeed = 5f;
+    public float jumpForce = 20f;
+    //å¢åŠ ä¸€ä¸ªåŸºç¡€é€Ÿåº¦
     private float baseMoveSpeed;
     private Coroutine speedCoroutine;
 
-    [Header("µØÃæ¼ì²â")]
-    public Transform groundCheckPoint;   
-    public float groundCheckRadius = 0.2f; 
-    public LayerMask groundLayer;       
-    private Rigidbody2D rb;             
-    private float moveInput;            
-    private bool isGrounded;
+    [Header("è·³è·ƒæ‰‹æ„Ÿå‚æ•°")]
+    public float gravityUp = 2.6f;
+    public float gravityDown = 4.2f;
+    public float coyoteTime = 0.15f;
+    public float jumpBuffer = 0.15f;
+    public float jumpCutMultiplier = 0.4f;
 
+    [Header("åœ°é¢æ£€æµ‹")]
+    public Transform groundCheckPoint;
+    public float groundCheckRadius = 0.2f;
+    public LayerMask groundLayer;
+    private Rigidbody2D rb;
+    private float moveInput;
+    private bool isGrounded;
     private Animator anim;
     public bool isDead;
-    //¾«ÁéäÖÈ¾Æ÷
+    //ç²¾çµæ¸²æŸ“å™¨
     private SpriteRenderer sprite;
+
+    //è·³è·ƒè®¡æ—¶å™¨å˜é‡
+    private float coyoteTimer;
+    private float jumpBufferTimer;
+    private bool jumpRelease;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         sprite = GetComponentInChildren<SpriteRenderer>();
         anim = GetComponent<Animator>();
-        //¼ÇÂ¼»ù´¡ËÙ¶È
+        //è®°å½•åŸºç¡€é€Ÿåº¦
         baseMoveSpeed = moveSpeed;
+
+        //âš ï¸æŠŠåˆšä½“åŸç”Ÿé‡åŠ›ç¼©æ”¾ç½®1ï¼Œäº¤ç»™ä»£ç æ§åˆ¶é‡åŠ›
+        rb.gravityScale = 1f;
     }
 
     void Update()
@@ -41,18 +54,28 @@ public class MoveAndJump : MonoBehaviour
         {
             return;
         }
-
-        //  ¼ì²âÊÇ·ñÔÚµØÉÏ
+        //  æ£€æµ‹æ˜¯å¦åœ¨åœ°ä¸Š
         isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, groundLayer);
 
-        // »ñÈ¡¼üÅÌÊäÈë 
-        moveInput = Input.GetAxisRaw("Horizontal");
+        //åœŸç‹¼æ—¶é—´è®¡æ—¶,å°±æ˜¯ä½ èµ°åˆ°å¹³å°è¾¹ç¼˜æ‰ä¸‹å»ï¼Œ0.15 ç§’å†…æŒ‰ç©ºæ ¼ï¼Œä¾ç„¶å¯ä»¥è·³èµ·æ¥
+        if (isGrounded)
+            coyoteTimer = coyoteTime;
+        else
+            coyoteTimer -= Time.deltaTime;
 
-        //  ¼ì²âÌøÔ¾°´¼ü (¿Õ¸ñ¼ü)
-        if (Input.GetButtonDown("Jump") && isGrounded)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-        }
+        //è·³è·ƒè¾“å…¥ç¼“å†²
+        if (Input.GetButtonDown("Jump"))
+            jumpBufferTimer = jumpBuffer;
+        else
+            jumpBufferTimer -= Time.deltaTime;
+
+        //æ¾å¼€ç©ºæ ¼æ ‡è®°ï¼Œç”¨äºå°è·³ 
+        if (Input.GetButtonUp("Jump"))
+            jumpRelease = true;
+
+
+        // è·å–é”®ç›˜è¾“å…¥ 
+        moveInput = Input.GetAxisRaw("Horizontal");
 
         if (moveInput > 0)
         {
@@ -68,53 +91,73 @@ public class MoveAndJump : MonoBehaviour
         {
             anim.SetBool("Running", false);
         }
-
-        //¹¥»÷¶¯»­
-        if (Input.GetMouseButtonDown (0))
+        //æ”»å‡»åŠ¨ç”»
+        if (Input.GetMouseButtonDown(0))
         {
             anim.SetTrigger("Attack");
         }
-        
+
     }
 
     void FixedUpdate()
     {
-        // ±£³Öµ±Ç°µÄ Y ÖáËÙ¶È£¬Ö»¸Ä±äË®Æ½ X ÖáµÄËÙ¶È
+        // ä¿æŒå½“å‰çš„ Y è½´é€Ÿåº¦ï¼Œåªæ”¹å˜æ°´å¹³ X è½´çš„é€Ÿåº¦
         rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
+
+        //æ‰§è¡Œè·³è·ƒ
+        if (jumpBufferTimer > 0f && coyoteTimer > 0f)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            jumpBufferTimer = 0;
+            jumpRelease = false;
+        }
+
+        //æ¾å¼€ç©ºæ ¼å‰Šå‡è·³è·ƒé«˜åº¦
+        if (jumpRelease && rb.velocity.y > 0)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * jumpCutMultiplier);
+            jumpRelease = false;
+        }
+
+        //åŒºåˆ†ä¸Šå‡ã€ä¸‹è½é‡åŠ›
+        if (rb.velocity.y > 0)
+        {
+            rb.gravityScale = gravityUp;
+        }
+        else
+        {
+            rb.gravityScale = gravityDown;
+        }
     }
 
-    public void PlayerHurt ()
+    public void PlayerHurt()
     {
         anim.SetTrigger("hurt");
     }
-
-    //Ôö¼ÓÒÆ¶¯ËÙ¶È
+    //å¢åŠ ç§»åŠ¨é€Ÿåº¦
     public void IncreaseMoveSpeed(float amount, float duration)
     {
-        //Èç¹ûÖ®Ç°ÒÑ¾­ÓĞËÙ¶ÈBuff£¬ÏÈÍ£Ö¹Ö®Ç°µÄ¼ÆÊ±
+        //å¦‚æœä¹‹å‰å·²ç»æœ‰é€Ÿåº¦Buffï¼Œå…ˆåœæ­¢ä¹‹å‰çš„è®¡æ—¶
         if (speedCoroutine != null)
         {
             StopCoroutine(speedCoroutine);
         }
-
-        //ÖØĞÂ¿ªÊ¼Buff
+        //é‡æ–°å¼€å§‹Buff
         speedCoroutine = StartCoroutine(SpeedBuffCoroutine(amount, duration)
         );
     }
-    //Ôö¼ÓĞ­³Ì
+    //å¢åŠ åç¨‹
     private IEnumerator SpeedBuffCoroutine(float amount, float duration)
     {
         moveSpeed = baseMoveSpeed + amount;
-        Debug.Log("ÒÆ¶¯ËÙ¶ÈÔö¼Ó£º" + amount + " µ±Ç°ÒÆ¶¯ËÙ¶È£º" + moveSpeed);
+        Debug.Log("ç§»åŠ¨é€Ÿåº¦å¢åŠ ï¼š" + amount + " å½“å‰ç§»åŠ¨é€Ÿåº¦ï¼š" + moveSpeed);
         yield return new WaitForSeconds(duration);
         moveSpeed = baseMoveSpeed;
-        Debug.Log("ÒÆ¶¯ËÙ¶ÈBuff½áÊø£¬»Ö¸´»ù´¡ËÙ¶È£º" + baseMoveSpeed);
+        Debug.Log("ç§»åŠ¨é€Ÿåº¦Buffç»“æŸï¼Œæ¢å¤åŸºç¡€é€Ÿåº¦ï¼š" + baseMoveSpeed);
         speedCoroutine = null;
     }
-
     public void PlayerDead()
     {
         isDead = true;
     }
-
 }

@@ -1,5 +1,6 @@
-﻿using UnityEngine;
 using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
 public enum EnemyState
 {
     Idle,//待机
@@ -65,12 +66,16 @@ public class EnemyBase : MonoBehaviour
             }
         }
         ChangeState(EnemyState.Patrol);
+        //hpSlider.value = HPNow / HPMax;
     }
 
     [Header("Enemy 受击")]
    
     public bool isGetHit = false;
     public float GetHitForce = 5f;
+
+    //[Header("血条")]
+    //public Slider hpSlider;
 
     [Header("Enemy 死亡")]
     public GameObject EnemyAndPosition;
@@ -81,7 +86,6 @@ public class EnemyBase : MonoBehaviour
     [Header("Enemy 存档")]
     public string enemyId;
     public WorldStateManager worldStateManager;
-
 
 
     // Update is called once per frame
@@ -286,6 +290,7 @@ public class EnemyBase : MonoBehaviour
     public virtual void DeathEnter()
     {
         canMove = false;
+        //hpSlider.value = 0;
         enemyAnimator.SetBool("isRun", false);
         enemyAnimator.SetTrigger("IsDead");
         
@@ -414,6 +419,7 @@ public class EnemyBase : MonoBehaviour
         {
             // 扣血逻辑
             HPNow -= damage;
+            //hpSlider.value = HPNow / HPMax;
             if (HPNow <= 0)
             {
                ChangeState(EnemyState.Death);
