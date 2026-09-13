@@ -95,39 +95,31 @@ public class CGControl : MonoBehaviour
     }
     void OnEndingFinish(VideoPlayer player)
     {
+        Debug.Log("===== 结局CG播放结束 =====");
         vpEnding.Stop();
-        // ❌先不要关闭 uiEnding！这里注释掉 SetActive(false)
-        Debug.Log("结局CG播放完成，可以返回主菜单");
-        // 恢复BGM
-        if (mainBgmAudio != null)
+        if (saveManager == null)
         {
-            mainBgmAudio.UnPause();
+            saveManager = FindObjectOfType<SaveManager>();
         }
-        if (endingTargetSceneIndex >= 0)
-        Debug.Log("结局CG播放完成，开始清理游戏数据");
-        SaveManager saveManager =FindObjectOfType<SaveManager>();
         if (saveManager != null)
         {
-            // 直接加载场景，旧场景（连同CG uiEnding）会一起销毁，不会闪旧画面
-            SceneManager.LoadScene(endingTargetSceneIndex);
-            saveManager.ClearGameData(success =>
-            {
-                if (success)
-                {
-                    Debug.Log("游戏数据清理完成，进入主菜单");
-                    GoToEndingTargetScene();
-                }
-                else
-                {
-                    Debug.LogError("游戏数据清理失败");
-                }
-            });
+            Debug.Log("找到SaveManager，开始保存通关存档");
+            saveManager.CompleteCurrentSave();
         }
         else
         {
-            // 不跳转场景的时候才关闭UI
+            Debug.LogError("SaveManager为空，无法保存通关状态");
+        }
+        // 结局CG结束后，只允许跳转一次
+        if (endingTargetSceneIndex >= 0)
+        {
+            Debug.Log("准备进入结束菜单，场景索引：" + endingTargetSceneIndex);
+            SceneManager.LoadScene(endingTargetSceneIndex);
+        }
+        else
+        {
+            Debug.LogWarning("没有设置结束场景");
             uiEnding.gameObject.SetActive(false);
-            Debug.LogError("找不到SaveManager");
         }
     }
     //==== 修改这里：增加可选回调参数 ====
@@ -188,23 +180,5 @@ public class CGControl : MonoBehaviour
         Debug.Log("存档CG流程结束");
         //==== 全部结束后执行回调 ====
         onComplete?.Invoke();
-    }
-
-    private void GoToEndingTargetScene()
-    {
-        // 恢复BGM
-        if (mainBgmAudio != null)
-        {
-            mainBgmAudio.UnPause();
-        }
-        if (endingTargetSceneIndex >= 0)
-        {
-            // 直接加载场景，旧场景会一起销毁
-            SceneManager.LoadScene(endingTargetSceneIndex);
-        }
-        else
-        {
-            uiEnding.gameObject.SetActive(false);
-        }
     }
 }

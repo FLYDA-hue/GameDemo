@@ -11,6 +11,8 @@ public class PlayerSaveData
     public List<string> openedChestIds;
     //已经击败的敌人ID
     public List<string> defeatedEnemyIds;
+    //是否已经通关
+    public bool completed;
 }
 [Serializable]
 public class PlayerPosition

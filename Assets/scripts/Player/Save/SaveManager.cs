@@ -69,14 +69,23 @@ public class SaveManager : MonoBehaviour
 
     private void OnLoadGameSuccess(PlayerSaveData data)
     {
-        Debug.Log(
-        "存档加载成功，资源数量：" + data.resources.Count + "，玩家位置：(" + data.playerPosition.x + ", " + data.playerPosition.y + ")");
-        player.position = new Vector3(data.playerPosition.x, data.playerPosition.y, player.position.z);
-        Debug.Log("玩家位置恢复完成：（" + player.position.x + "," + player.position.y + ")");
-        //恢复世界状态
-        if(worldStateManager!=null)
+        //加载玩家位置
+        player.position = new Vector3(data.playerPosition.x, data.playerPosition.y,player.position.z);
+        //加载资源
+        if (resourceSystem != null && resourceSystem.Manager != null)
         {
-            worldStateManager.LoadWorldState(data.openedChestIds, data.defeatedEnemyIds);
+            resourceSystem.Manager.LoadFromSave(data.resources);
+            Debug.Log("SaveManager：资源加载完成，数量：" + resourceSystem.Manager.GetAllResource().Count
+            );
+        }
+        else
+        {
+            Debug.LogError("SaveManager：ResourceSystem 或 Manager 为空");
+        }
+        //加载世界状态
+        if (worldStateManager != null)
+        {
+            worldStateManager.LoadWorldState( data.openedChestIds, data.defeatedEnemyIds);
         }
     }
     public void ClearGameData(System.Action<bool> onComplete = null)
@@ -114,5 +123,26 @@ public class SaveManager : MonoBehaviour
                 );
             })
         );
+    }
+    public void CompleteCurrentSave()
+    {
+        PlayerSaveData data = new PlayerSaveData();
+        data.resources = resourceSystem.Manager.GetAllResource();
+        data.playerPosition = new PlayerPosition();
+        // 通关后固定出生位置
+        data.playerPosition.x = 35f;
+        data.playerPosition.y = -2f;
+        data.openedChestIds = worldStateManager.GetOpenedChestIds();
+        data.defeatedEnemyIds = worldStateManager.GetDefeatedEnemyIds();
+        data.completed = true;
+        SaveNetwork saveNetwork = new SaveNetwork(resourceSystem.apiSettings);
+        StartCoroutine(SaveCompletedCoroutine(saveNetwork, data));
+    }
+    private IEnumerator SaveCompletedCoroutine(
+    SaveNetwork saveNetwork,
+    PlayerSaveData data)
+    {
+        yield return saveNetwork.SaveGame(data);
+        Debug.Log("当前存档通关状态已保存，存档槽："+ SaveSlotManager.CurrentSlot);
     }
 }

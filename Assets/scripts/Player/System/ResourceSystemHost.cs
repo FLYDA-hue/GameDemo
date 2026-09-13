@@ -30,12 +30,12 @@ public class ResourceSystemHost : MonoBehaviour
         );      
         Debug.Log("ResourceSystem初始化完成");
     }
-    private void Start()
-    {
-        Debug.Log("开始加载服务器资源");
-        //启动服务器资源加载
-        StartCoroutine(Network.GetResource(Manager));
-    }
+    //private void Start()
+    //{
+    //    Debug.Log("开始加载服务器资源");
+    //    //启动服务器资源加载
+    //    StartCoroutine(Network.GetResource(Manager));
+    //}
     public void AddResourceToServer(ResourceData data,System.Action<bool> callback)
     {
         StartCoroutine(Network.SendResource(data,Manager,callback));

@@ -23,14 +23,35 @@ public class ResourceManager
     {
         return resources.Count >= maxSlot;
     }
-    //请求服务器增加资源
-    public void RequestAddResource(int id,int count,System.Action<bool> calllback)
+    //增加资源到当前存档的背包
+    public void RequestAddResource(int id, int count, System.Action<bool> callback)
     {
-        ResourceData data = new ResourceData();
-        data.id= id;
-        data.count = count;
-        //通知发送请求
-        syncToServer?.Invoke(data,calllback);
+        if (count <= 0)
+        {
+            callback?.Invoke(false);
+            return;
+        }
+        //查找背包里是否已经有这个资源
+        ResourceData resource = resources.Find(r => r.id == id);
+        if (resource != null)
+        {
+            //已有资源，直接增加数量
+            resource.count += count;
+        }
+        else
+        {
+            //第一次获得这个资源
+            ResourceData newResource = new ResourceData();
+            newResource.id = id;
+            newResource.count = count;
+            newResource.name = GetResourceName(id);
+            resources.Add(newResource);
+        }
+        Debug.Log("获得资源：" +GetResourceName(id) + " +" +count + "，当前数量：" + GetResourceCount(id));
+        //通知背包UI刷新
+        OnResourceChanged?.Invoke();
+        //告诉宝箱：增加资源成功
+        callback?.Invoke(true);
     }
     //请求服务器减少资源
     public void RequestRemoveResource(int id,int count,System.Action<bool> callback)
@@ -92,21 +113,20 @@ public class ResourceManager
         return resources;
     }
     //从服务器加载资源，覆盖本地背包
-    public void LoadFromServer(List<ResourceData> serverResources)
+    public void LoadFromServer(List<ResourceData> saveResources)
     {
-        resources = serverResources;
-        IsInitialized = true;
-        Debug.Log("服务器资源加载完成");
+        resources = new List<ResourceData>(saveResources);
+        Debug.Log("本地存档资源加载成功" );
         //根据数据库刷新资源名称
         foreach (ResourceData resource in resources)
         {
-            ResourceConfig config =
-                database.GetResource(resource.id);
+            ResourceConfig config = database.GetResource(resource.id);
             if (config != null)
             {
                 resource.name = config.itemName;
             }
         }
+        IsInitialized = true;
         OnResourceChanged?.Invoke();
     }
     //服务器返回最新资源后更新客户端

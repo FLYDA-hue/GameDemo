@@ -9,7 +9,7 @@ public class SaveNetwork
     {  this.apiSettings = apiSettings;}
     public IEnumerator SaveGame(PlayerSaveData data)
     {
-        string fullurl = apiSettings.baseUrl + "/save";
+        string fullurl =apiSettings.baseUrl+ "/save?slot="+ SaveSlotManager.CurrentSlot;
         string json=JsonUtility.ToJson(data);
         Debug.Log("发送保存数据："+json);
         UnityWebRequest request=new UnityWebRequest(fullurl,"POST");
@@ -29,7 +29,7 @@ public class SaveNetwork
     }
     public IEnumerator LoadGame(System.Action<PlayerSaveData> onSuccess)
     {
-        string fullurl = apiSettings.baseUrl + "/save";
+        string fullurl =apiSettings.baseUrl+ "/save?slot="+ SaveSlotManager.CurrentSlot;
         UnityWebRequest request = UnityWebRequest.Get(fullurl);
         yield return request.SendWebRequest();
         if (request.result == UnityWebRequest.Result.Success)
@@ -49,7 +49,7 @@ public class SaveNetwork
         }
         else
         {
-            Debug.LogError("加载游戏失败：" + request.error);
+            Debug.Log("加载游戏失败");
         }
     }
     public IEnumerator ClearSave(System.Action<bool> callback = null)
