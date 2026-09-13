@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/GameProcess/EndScene.unity
     guid: 895292db49f37d247b17767d41eed841
+  - enabled: 1
+    path: Assets/Scenes/GameProcess/SaveSelect.unity
+    guid: 1c66f29eadc0bf647b325980b18749b0
   m_configObjects: {}

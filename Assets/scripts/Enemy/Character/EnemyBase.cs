@@ -47,10 +47,21 @@ public class EnemyBase : MonoBehaviour
 
     [Header("Enemy 追击")]
     public GameObject player;
-    //public virtual void Start()
-    //{
-    //    ChangeState(EnemyState.Patrol);
-    //}
+
+    [Header("血条")]
+    public Slider hpSlider;
+
+    [Header("Enemy 受击")]
+    public bool isGetHit = false;
+    public float GetHitForce = 5f;
+
+    [Header("Enemy 死亡")]
+    public GameObject EnemyAndPosition;
+
+    [Header("Enemy 存档")]
+    public string enemyId;
+    public WorldStateManager worldStateManager;
+
     private IEnumerator Start()
     {
         if (worldStateManager != null)
@@ -66,27 +77,8 @@ public class EnemyBase : MonoBehaviour
             }
         }
         ChangeState(EnemyState.Patrol);
-        //hpSlider.value = HPNow / HPMax;
+        hpSlider.value = HPNow / HPMax;
     }
-
-    [Header("Enemy 受击")]
-   
-    public bool isGetHit = false;
-    public float GetHitForce = 5f;
-
-    //[Header("血条")]
-    //public Slider hpSlider;
-
-    [Header("Enemy 死亡")]
-    public GameObject EnemyAndPosition;
-
-
-
-    //存档
-    [Header("Enemy 存档")]
-    public string enemyId;
-    public WorldStateManager worldStateManager;
-
 
     // Update is called once per frame
     public virtual void Update()
@@ -290,7 +282,7 @@ public class EnemyBase : MonoBehaviour
     public virtual void DeathEnter()
     {
         canMove = false;
-        //hpSlider.value = 0;
+        hpSlider.value = 0;
         enemyAnimator.SetBool("isRun", false);
         enemyAnimator.SetTrigger("IsDead");
         
@@ -419,7 +411,7 @@ public class EnemyBase : MonoBehaviour
         {
             // 扣血逻辑
             HPNow -= damage;
-            //hpSlider.value = HPNow / HPMax;
+            hpSlider.value = HPNow / HPMax;
             if (HPNow <= 0)
             {
                ChangeState(EnemyState.Death);
@@ -439,11 +431,6 @@ public class EnemyBase : MonoBehaviour
         enemyAnimator.SetBool("GetHit", false);
         ChangeState(EnemyState.Chase);
     }
-
-    /*public virtual void Delete()
-    {
-      Destroy(EnemyAndPosition,0.1f);
-    }*/
 
     public virtual void Delete()
     {
