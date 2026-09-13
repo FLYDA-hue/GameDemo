@@ -65,11 +65,6 @@ public class InventoryUI : MonoBehaviour
             Debug.LogWarning("manager 未初始化，跳过刷新");
             return;
         }
-        if (!manager.IsInitialized)
-        {
-            Debug.Log("资源数据尚未加载完成，暂不刷新背包");
-            return;
-        }
         Debug.Log("背包刷新");
         //清空Content里所有旧格子
         foreach (Transform child in content)

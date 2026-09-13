@@ -16,6 +16,12 @@ public class CGControl : MonoBehaviour
     [Header("结局CG")]
     public VideoPlayer vpEnding;
     public RawImage uiEnding;
+
+    //结局后清空游戏数据
+    public SaveManager saveManager;
+
+    public ResourceSystemHost resourceSystem;
+    public WorldStateManager worldStateManager;
     [Header("启动自动播放开场")]
     public bool autoPlayOpening = true;
     [Header("游戏主BGM音源")]
@@ -89,22 +95,30 @@ public class CGControl : MonoBehaviour
     }
     void OnEndingFinish(VideoPlayer player)
     {
+        Debug.Log("===== 结局CG播放结束 =====");
         vpEnding.Stop();
-        // ❌先不要关闭 uiEnding！这里注释掉 SetActive(false)
-        Debug.Log("结局CG播放完成，可以返回主菜单");
-        // 恢复BGM
-        if (mainBgmAudio != null)
+        if (saveManager == null)
         {
-            mainBgmAudio.UnPause();
+            saveManager = FindObjectOfType<SaveManager>();
         }
+        if (saveManager != null)
+        {
+            Debug.Log("找到SaveManager，开始保存通关存档");
+            saveManager.CompleteCurrentSave();
+        }
+        else
+        {
+            Debug.LogError("SaveManager为空，无法保存通关状态");
+        }
+        // 结局CG结束后，只允许跳转一次
         if (endingTargetSceneIndex >= 0)
         {
-            // 直接加载场景，旧场景（连同CG uiEnding）会一起销毁，不会闪旧画面
+            Debug.Log("准备进入结束菜单，场景索引：" + endingTargetSceneIndex);
             SceneManager.LoadScene(endingTargetSceneIndex);
         }
         else
         {
-            // 不跳转场景的时候才关闭UI
+            Debug.LogWarning("没有设置结束场景");
             uiEnding.gameObject.SetActive(false);
         }
     }
