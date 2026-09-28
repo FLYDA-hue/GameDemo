@@ -6,6 +6,7 @@ public class SaveManager : MonoBehaviour
     public Transform player;
     public WorldStateManager worldStateManager;
     private bool _isSaving = false;
+    private bool canSave = false;
 
     private void Start()
     {
@@ -13,7 +14,7 @@ public class SaveManager : MonoBehaviour
     }
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.X) && !_isSaving)
+        if (Input.GetKeyDown(KeyCode.X) && !_isSaving && canSave)
         {
             SaveGame();
         }
@@ -21,6 +22,11 @@ public class SaveManager : MonoBehaviour
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
+    }
+    public void SetCanSave(bool value)
+    {
+        canSave = value;
+        Debug.Log("当前是否允许保存：" + canSave);
     }
     public void SaveGame()
     {

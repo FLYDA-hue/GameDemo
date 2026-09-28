@@ -2,39 +2,34 @@
 public class SavePoint : MonoBehaviour
 {
     public SaveManager saveManager;
-    private bool playerInside = false;
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if(other.CompareTag("Player"))
+        if (other.CompareTag("Player"))
         {
-            playerInside = true;
-            Debug.Log("进入存档点");
+            if (saveManager == null)
+            {
+                saveManager = FindObjectOfType<SaveManager>();
+            }
+            if (saveManager != null)
+            {
+                saveManager.SetCanSave(true);
+                Debug.Log("玩家进入树屋，可以保存");
+            }
         }
     }
-    private void OnTriggerExit2D(Collider2D other
-        )
+    private void OnTriggerExit2D(Collider2D other)
     {
-        if(other.CompareTag("Player"))
+        if (other.CompareTag("Player"))
         {
-            playerInside = false;
-            Debug.Log("离开存档点");
+            if (saveManager == null)
+            {
+                saveManager = FindObjectOfType<SaveManager>();
+            }
+            if (saveManager != null)
+            {
+                saveManager.SetCanSave(false);
+                Debug.Log("玩家离开树屋，不可以保存");
+            }
         }
-    }
-    private void Update()
-    {
-        if(playerInside&&Input.GetKeyDown(KeyCode.X))
-        {
-            Save();
-        }
-    }
-    private void Save()
-    {
-        if(saveManager==null)
-        {
-            Debug.LogError("SaveManager为空");
-            return;
-        }
-        saveManager.SaveGame();
-        Debug.Log("存档请求已发送");
     }
 }
